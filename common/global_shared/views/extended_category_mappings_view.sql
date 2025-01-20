@@ -1,3 +1,4 @@
+drop view if exists extended_category_mappings_view;
 create or replace view extended_category_mappings_view as
 select 
     ea.id as expense_attribute_id,
