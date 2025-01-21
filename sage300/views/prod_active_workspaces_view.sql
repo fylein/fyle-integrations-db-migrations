@@ -1,19 +1,7 @@
 drop view if exists prod_active_workspaces_view;
 
 create or replace view prod_active_workspaces_view as
-SELECT w.id,
-    w.name,
-    w.org_id,
-    w.reimbursable_last_synced_at,
-    w.credit_card_last_synced_at,
-    w.source_synced_at,
-    w.destination_synced_at,
-    w.onboarding_state,
-    w.ms_business_central_accounts_last_synced_at,
-    w.business_central_company_name,
-    w.business_central_company_id,
-    w.created_at,
-    w.updated_at,
+SELECT w.*
     array_agg(u.email) AS user_emails
    FROM workspaces w
      JOIN workspaces_user wu ON wu.workspace_id = w.id

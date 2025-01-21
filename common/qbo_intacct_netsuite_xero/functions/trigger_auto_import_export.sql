@@ -1,6 +1,5 @@
 DROP FUNCTION if exists trigger_auto_import_export;
 
--- Non QBD
 CREATE OR REPLACE FUNCTION trigger_auto_import_export(IN _workspace_id varchar(255)) RETURNS void AS $$
 DECLARE
     rcount integer;
