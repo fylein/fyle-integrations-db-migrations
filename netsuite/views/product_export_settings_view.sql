@@ -17,7 +17,6 @@ SELECT
     case when corporate_credit_card_expense_group_fields @> ARRAY['expense_id']::varchar[] OR corporate_credit_card_expense_group_fields @> ARRAY['expense_number']::varchar[] THEN 'Expense' ELSE 'Report' END AS readable_corporate_credit_card_expense_group_fields,
     egs.reimbursable_export_date_type,
     egs.expense_state,
-    egs.corporate_credit_card_expense_group_fields,
     egs.ccc_export_date_type,
     egs.ccc_expense_state,
     -- General Mappings
