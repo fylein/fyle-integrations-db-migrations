@@ -1,142 +1,303 @@
-CREATE OR REPLACE FUNCTION delete_workspace(_workspace_id integer)
-RETURNS void
-LANGUAGE plpgsql
-AS $function$
+DROP FUNCTION if exists delete_workspace;
+
+CREATE OR REPLACE FUNCTION delete_workspace(IN _workspace_id integer) RETURNS void AS $$
 DECLARE
     rcount integer;
     _org_id varchar(255);
 BEGIN
     RAISE NOTICE 'Deleting data from workspace %', _workspace_id;
 
-    -- Delete records from related tables
-    DELETE FROM import_logs WHERE workspace_id = _workspace_id;
+    DELETE
+    FROM import_logs il
+    WHERE il.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % import_logs', rcount;
 
-    DELETE FROM task_logs WHERE workspace_id = _workspace_id;
+    DELETE
+    FROM task_logs tl
+    WHERE tl.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % task_logs', rcount;
 
-    DELETE FROM bill_lineitems WHERE bill_id IN (
-        SELECT id FROM bills WHERE expense_group_id IN (
-            SELECT id FROM expense_groups WHERE workspace_id = _workspace_id
+    DELETE
+    FROM bill_lineitems bl
+    WHERE bl.bill_id IN (
+        SELECT b.id FROM bills b WHERE b.expense_group_id IN (
+            SELECT eg.id FROM expense_groups eg WHERE eg.workspace_id = _workspace_id
         )
     );
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % bill_lineitems', rcount;
 
-    DELETE FROM bills WHERE expense_group_id IN (
-        SELECT id FROM expense_groups WHERE workspace_id = _workspace_id
+    DELETE
+    FROM bills b
+    WHERE b.expense_group_id IN (
+        SELECT eg.id FROM expense_groups eg WHERE eg.workspace_id = _workspace_id
     );
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % bills', rcount;
 
-    DELETE FROM credit_card_charge_lineitems WHERE credit_card_charge_id IN (
-        SELECT id FROM credit_card_charges WHERE expense_group_id IN (
-            SELECT id FROM expense_groups WHERE workspace_id = _workspace_id
+    DELETE
+    FROM credit_card_charge_lineitems cccl
+    WHERE cccl.credit_card_charge_id IN (
+        SELECT ccc.id FROM credit_card_charges ccc WHERE ccc.expense_group_id IN (
+            SELECT eg.id FROM expense_groups eg WHERE eg.workspace_id = _workspace_id
         )
     );
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % credit_card_charge_lineitems', rcount;
 
-    DELETE FROM credit_card_charges WHERE expense_group_id IN (
-        SELECT id FROM expense_groups WHERE workspace_id = _workspace_id
+    DELETE
+    FROM credit_card_charges ccc
+    WHERE ccc.expense_group_id IN (
+        SELECT eg.id FROM expense_groups eg WHERE eg.workspace_id = _workspace_id
     );
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % credit_card_charges', rcount;
 
-    DELETE FROM expense_report_lineitems WHERE expense_report_id IN (
-        SELECT id FROM expense_reports WHERE expense_group_id IN (
-            SELECT id FROM expense_groups WHERE workspace_id = _workspace_id
+    DELETE
+    FROM expense_report_lineitems erl
+    WHERE erl.expense_report_id IN (
+        SELECT er.id FROM expense_reports er WHERE er.expense_group_id IN (
+            SELECT eg.id FROM expense_groups eg WHERE eg.workspace_id = _workspace_id
         )
     );
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % expense_report_lineitems', rcount;
 
-    DELETE FROM expense_reports WHERE expense_group_id IN (
-        SELECT id FROM expense_groups WHERE workspace_id = _workspace_id
+    DELETE
+    FROM expense_reports er
+    WHERE er.expense_group_id IN (
+        SELECT eg.id FROM expense_groups eg WHERE eg.workspace_id = _workspace_id
     );
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % expense_reports', rcount;
 
-    DELETE FROM journal_entry_lineitems WHERE journal_entry_id IN (
-        SELECT id FROM journal_entries WHERE expense_group_id IN (
-            SELECT id FROM expense_groups WHERE workspace_id = _workspace_id
+
+    DELETE
+    FROM journal_entry_lineitems jel
+    WHERE jel.journal_entry_id IN (
+        SELECT je.id FROM journal_entries je WHERE je.expense_group_id IN (
+            SELECT eg.id FROM expense_groups eg WHERE eg.workspace_id = _workspace_id
         )
     );
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % journal_entry_lineitems', rcount;
 
-    DELETE FROM journal_entries WHERE expense_group_id IN (
-        SELECT id FROM expense_groups WHERE workspace_id = _workspace_id
+    DELETE
+    FROM journal_entries je
+    WHERE je.expense_group_id IN (
+        SELECT eg.id FROM expense_groups eg WHERE eg.workspace_id = _workspace_id
     );
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % journal_entries', rcount;
 
-    DELETE FROM reimbursements WHERE workspace_id = _workspace_id;
+    DELETE
+    FROM reimbursements r
+    WHERE r.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % reimbursements', rcount;
 
-    DELETE FROM expenses WHERE id IN (
-        SELECT expense_id FROM expense_groups_expenses WHERE expensegroup_id IN (
-            SELECT id FROM expense_groups WHERE workspace_id = _workspace_id
+    DELETE
+    FROM expenses e
+    WHERE e.id IN (
+        SELECT expense_id FROM expense_groups_expenses ege WHERE ege.expensegroup_id IN (
+            SELECT eg.id FROM expense_groups eg WHERE eg.workspace_id = _workspace_id
         )
     );
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % expenses', rcount;
 
-    DELETE FROM expense_groups_expenses WHERE expensegroup_id IN (
-        SELECT id FROM expense_groups WHERE workspace_id = _workspace_id
+    DELETE
+    FROM expenses 
+    WHERE is_skipped=true and org_id in (SELECT fyle_org_id FROM workspaces WHERE id=_workspace_id);
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % skipped expenses', rcount;
+
+    DELETE
+    FROM expense_groups_expenses ege
+    WHERE ege.expensegroup_id IN (
+        SELECT eg.id FROM expense_groups eg WHERE eg.workspace_id = _workspace_id
     );
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % expense_groups_expenses', rcount;
 
-    DELETE FROM vendor_payment_lineitems WHERE expense_group_id IN (
-        SELECT id FROM expense_groups WHERE workspace_id = _workspace_id
-    );
-    GET DIAGNOSTICS rcount = ROW_COUNT;
-    RAISE NOTICE 'Deleted % vendor_payment_lineitems', rcount;
-
-    DELETE FROM vendor_payments WHERE id IN (
-        SELECT vendor_payment_id FROM vendor_payment_lineitems WHERE expense_group_id IN (
-            SELECT id FROM expense_groups WHERE workspace_id = _workspace_id
+    DELETE
+    FROM vendor_payments vp
+    WHERE vp.id IN (
+        SELECT vpl.vendor_payment_id FROM vendor_payment_lineitems vpl WHERE vpl.expense_group_id IN (
+            SELECT eg.id FROM expense_groups eg WHERE eg.workspace_id = _workspace_id
         )
     );
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % vendor_payments', rcount;
 
-    DELETE FROM expense_groups WHERE workspace_id = _workspace_id;
+    DELETE
+    FROM vendor_payment_lineitems vpl
+    WHERE vpl.expense_group_id IN (
+        SELECT eg.id FROM expense_groups eg WHERE eg.workspace_id = _workspace_id
+    );
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % vendor_payment_lineitems', rcount;
+
+    DELETE
+    FROM expense_groups eg
+    WHERE eg.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % expense_groups', rcount;
 
-    DELETE FROM mappings WHERE workspace_id = _workspace_id;
+    DELETE
+    FROM mappings m
+    WHERE m.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % mappings', rcount;
 
-    DELETE FROM configurations WHERE workspace_id = _workspace_id;
+    DELETE
+    FROM employee_mappings em
+    WHERE em.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % employee_mappings', rcount;
+
+    DELETE
+    FROM category_mappings cm
+    WHERE cm.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % category_mappings', rcount;
+
+    DELETE
+    FROM mapping_settings ms
+    WHERE ms.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % mapping_settings', rcount;
+
+    DELETE
+    FROM general_mappings gm
+    WHERE gm.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % general_mappings', rcount;
+
+    DELETE
+    FROM configurations c
+    WHERE c.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % configurations', rcount;
 
-    DELETE FROM fyle_credentials WHERE workspace_id = _workspace_id;
+    DELETE
+    FROM expense_group_settings egs
+    WHERE egs.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % expense_group_settings', rcount;
+
+    DELETE
+    FROM fyle_credentials fc
+    WHERE fc.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % fyle_credentials', rcount;
 
-    DELETE FROM netsuite_credentials WHERE workspace_id = _workspace_id;
+    DELETE
+    FROM netsuite_credentials nc
+    WHERE nc.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % netsuite_credentials', rcount;
 
-    DELETE FROM workspaces WHERE id = _workspace_id;
+    DELETE
+    from expense_attributes_deletion_cache ead
+    WHERE ead.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
-    RAISE NOTICE 'Deleted % workspaces', rcount;
+    RAISE NOTICE 'Deleted % expense_attributes_deletion_cache', rcount;
+
+    DELETE
+    FROM expense_attributes ea
+    WHERE ea.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % expense_attributes', rcount;
+
+    DELETE
+    FROM expense_filters ef
+    WHERE ef.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % expense_filters', rcount;
+
+    DELETE
+    FROM destination_attributes da
+    WHERE da.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % destination_attributes', rcount;
+
+    DELETE
+    FROM workspace_schedules wsch
+    WHERE wsch.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % workspace_schedules', rcount;
+
+    DELETE
+    FROM last_export_details led
+    WHERE led.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % last_export_details', rcount;
+
+    DELETE
+    FROM errors e
+    WHERE e.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % errors', rcount;
+
+    DELETE
+    FROM django_q_schedule dqs
+    WHERE dqs.args = _workspace_id::varchar(255);
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % django_q_schedule', rcount;
+
+    DELETE
+    FROM auth_tokens aut
+    WHERE aut.user_id IN (
+        SELECT u.id FROM users u WHERE u.id IN (
+            SELECT wu.user_id FROM workspaces_user wu WHERE workspace_id = _workspace_id
+        )
+    );
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % auth_tokens', rcount;
+
+    DELETE
+    FROM workspaces_user wu
+    WHERE workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % workspaces_user', rcount;
+
+    DELETE
+    FROM subsidiary_mappings sm
+    WHERE sm.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % subsidiary_mappings', rcount;
+
+    DELETE
+    FROM custom_segments cs
+    WHERE cs.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % custom_segments', rcount;
+
+    DELETE
+    FROM users u
+    WHERE u.id IN (
+        SELECT wu.user_id FROM workspaces_user wu WHERE workspace_id = _workspace_id
+    );
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % users', rcount;
 
     _org_id := (SELECT fyle_org_id FROM workspaces WHERE id = _workspace_id);
 
-    RAISE NOTICE E'Switch to integration_settings DB and delete the integration:';
-    RAISE NOTICE E'\\c integration_settings;\nBEGIN;\nSELECT delete_integration(''%s'');', _org_id;
+    DELETE
+    FROM workspaces w
+    WHERE w.id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % workspaces', rcount;
 
-    RAISE NOTICE E'Switch to prod DB and update the subscription:';
-    RAISE NOTICE E'BEGIN;\nUPDATE platform_schema.admin_subscriptions\nSET is_enabled = false\nWHERE org_id = ''%s'';', _org_id;
+    RAISE NOTICE E'\n\n\n\n\n\n\n\n\nSwitch to integration_settings db and run the below query to delete the integration';
+    RAISE NOTICE E'\\c integration_settings; \n\n begin; select delete_integration(''%'');\n\n\n\n\n\n\n\n\n\n\n', _org_id;
 
-    RETURN;
-END;
-$function$;
+    RAISE NOTICE E'\n\n\n\n\n\n\n\n\nSwitch to prod db and run the below query to update the subscription';
+    RAISE NOTICE E'begin; update platform_schema.admin_subscriptions set is_enabled = false where org_id = ''%'';\n\n\n\n\n\n\n\n\n\n\n', _org_id;
+
+RETURN;
+END
+$$ LANGUAGE plpgsql;
