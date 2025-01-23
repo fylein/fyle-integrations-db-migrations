@@ -211,12 +211,6 @@ BEGIN
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % expense_groups', rcount;
 
-    -- Delete from tenant_mappings
-    DELETE FROM tenant_mappings
-    WHERE workspace_id = _workspace_id;
-    GET DIAGNOSTICS rcount = ROW_COUNT;
-    RAISE NOTICE 'Deleted % tenant_mappings', rcount;
-
     -- Delete from mappings
     DELETE FROM mappings
     WHERE workspace_id = _workspace_id;
@@ -246,12 +240,6 @@ BEGIN
     WHERE workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % general_mappings', rcount;
-
-    -- Delete from workspace_general_settings
-    DELETE FROM workspace_general_settings
-    WHERE workspace_id = _workspace_id;
-    GET DIAGNOSTICS rcount = ROW_COUNT;
-    RAISE NOTICE 'Deleted % workspace_general_settings', rcount;
 
     -- Delete from configurations
     DELETE FROM configurations
