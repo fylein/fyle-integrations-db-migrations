@@ -7,8 +7,8 @@ SELECT
 FROM 
     workspaces w
 JOIN 
-    last_export_details lsd 
-    ON w.id = lsd.workspace_id
+    last_export_details led 
+    ON w.id = led.workspace_id
 JOIN 
     django_q_schedule dqs 
     ON w.id::text = dqs.args
@@ -17,7 +17,7 @@ WHERE
     w.destination_synced_at < (NOW() - INTERVAL '2 months') AND 
     w.last_synced_at < (NOW() - INTERVAL '2 months') AND 
     w.ccc_last_synced_at < (NOW() - INTERVAL '2 months') AND 
-    lsd.last_exported_at < (NOW() - INTERVAL '2 months') AND 
+    led.last_exported_at < (NOW() - INTERVAL '2 months') AND 
     w.id IN (
         SELECT 
             id
