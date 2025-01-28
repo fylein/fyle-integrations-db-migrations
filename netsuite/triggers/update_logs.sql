@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS update_logs (
     new_data JSONB,
     difference JSONB,
     workspace_id INT,
+    operation_type TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -42,7 +43,6 @@ DROP TRIGGER IF EXISTS monitor_updates ON fyle_credentials;
 
 DROP TRIGGER IF EXISTS monitor_updates ON expenses;
 
-ALTER TABLE update_logs ADD COLUMN operation_type TEXT DEFAULT 'UPDATE';
 DROP TRIGGER IF EXISTS monitor_deletes ON mapping_settings;
 CREATE TRIGGER monitor_deletes
 AFTER DELETE ON mapping_settings
