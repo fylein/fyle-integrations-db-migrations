@@ -1,5 +1,3 @@
-DROP FUNCTION if exists json_diff;
-
 CREATE OR REPLACE FUNCTION json_diff(left_json JSONB, right_json JSONB) RETURNS JSONB AS
 $json_difference$
     SELECT jsonb_object_agg(left_table.key, jsonb_build_array(left_table.value, right_table.value)) FROM

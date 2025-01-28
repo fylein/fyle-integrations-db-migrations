@@ -1,5 +1,3 @@
-DROP FUNCTION if exists log_delete_event;
-
 CREATE OR REPLACE FUNCTION log_delete_event()
     RETURNS TRIGGER AS
 $$
