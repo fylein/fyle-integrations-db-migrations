@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS update_logs (
     new_data JSONB,
     difference JSONB,
     workspace_id INT,
+    operation_type TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
