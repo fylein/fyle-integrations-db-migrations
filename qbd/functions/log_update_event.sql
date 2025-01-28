@@ -1,3 +1,5 @@
+DROP FUNCTION IF EXISTS log_update_event;
+
 CREATE OR REPLACE FUNCTION log_update_event()
     RETURNS TRIGGER AS
 $$
