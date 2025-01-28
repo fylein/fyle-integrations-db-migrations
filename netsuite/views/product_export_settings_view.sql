@@ -1,3 +1,4 @@
+DROP VIEW IF EXISTS product_export_settings_view;
 CREATE VIEW product_export_settings_view AS
 SELECT
     w.id AS workspace_id,
