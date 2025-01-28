@@ -1,14 +1,24 @@
-DROP VIEW IF EXISTS inactive_workspaces_view;
-
 CREATE OR REPLACE VIEW inactive_workspaces_view AS
 SELECT 
-    COUNT(*), 
+    COUNT(DISTINCT w.id) AS count,
     current_database() AS database
 FROM 
-    workspaces
-WHERE
-    source_synced_at < NOW() - INTERVAL '2 months'
-    AND destination_synced_at < NOW() - INTERVAL '2 months'
-    AND last_synced_at < NOW() - INTERVAL '2 months'
-    AND ccc_last_synced_at < NOW() - INTERVAL '2 months'
-    AND id IN (SELECT id FROM prod_workspaces_view);
+    workspaces w
+JOIN 
+    last_export_details lsd 
+    ON w.id = lsd.workspace_id
+JOIN 
+    django_q_schedule dqs 
+    ON w.id::text = dqs.args
+WHERE 
+    w.source_synced_at < (NOW() - INTERVAL '2 months') AND 
+    w.destination_synced_at < (NOW() - INTERVAL '2 months') AND 
+    w.last_synced_at < (NOW() - INTERVAL '2 months') AND 
+    w.ccc_last_synced_at < (NOW() - INTERVAL '2 months') AND 
+    lsd.last_exported_at < (NOW() - INTERVAL '2 months') AND 
+    w.id IN (
+        SELECT 
+            id
+        FROM 
+            prod_workspaces_view
+    );
