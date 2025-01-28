@@ -1,3 +1,5 @@
+DROP VIEW IF EXISTS inactive_workspaces_view;
+
 CREATE OR REPLACE VIEW inactive_workspaces_view AS
 SELECT 
     COUNT(DISTINCT w.id) AS count,
