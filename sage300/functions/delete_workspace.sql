@@ -1,3 +1,5 @@
+DROP FUNCTION if exists delete_workspace;
+
 CREATE OR REPLACE FUNCTION delete_workspace(_workspace_id integer)
 RETURNS void
 LANGUAGE plpgsql
