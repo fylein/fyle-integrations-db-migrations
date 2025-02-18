@@ -7,7 +7,6 @@ SELECT
     -- Workspace General Settings
     wgs.reimbursable_expenses_object,
     wgs.corporate_credit_card_expenses_object,
-    wgs.is_simplify_report_closure_enabled,
     -- Expense Group Settings
     egs.reimbursable_expense_group_fields,
     case when reimbursable_expense_group_fields @> ARRAY['expense_id']::varchar[] OR reimbursable_expense_group_fields @> ARRAY['expense_number']::varchar[] THEN 'Expense' ELSE 'Report' END AS readable_reimbursable_expense_group_fields,
