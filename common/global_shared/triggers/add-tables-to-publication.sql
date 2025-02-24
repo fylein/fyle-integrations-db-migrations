@@ -32,4 +32,4 @@ $$ LANGUAGE plpgsql;
 CREATE EVENT TRIGGER publication_table_trigger
 ON ddl_command_end
 WHEN TAG IN ('CREATE TABLE')
-EXECUTE FUNCTION manage_publication_tables();
+EXECUTE FUNCTION add_tables_to_publication();
