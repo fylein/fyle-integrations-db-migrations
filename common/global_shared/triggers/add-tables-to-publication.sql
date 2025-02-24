@@ -2,9 +2,7 @@ CREATE OR REPLACE FUNCTION add_tables_to_publication()
 RETURNS event_trigger AS $$
 BEGIN
     IF TG_EVENT = 'ddl_command_end' THEN
-        -- Check if the created object is a table in public schema
         IF object_type = 'table' AND schema_name = 'public' THEN
-            -- Exclude Django system tables
             IF NEW.table_name NOT IN (
                 'django_admin_log',
                 'django_content_type',
