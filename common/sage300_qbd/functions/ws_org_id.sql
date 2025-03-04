@@ -8,6 +8,6 @@ AS $function$
 BEGIN
   RETURN QUERY
   select id as workspace_id, org_id as workspace_org_id, name as workspace_name
-  from workspaces where fyle_org_id = _org_id;
+  from workspaces where org_id = _org_id;
 END;
 $function$;
