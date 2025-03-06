@@ -2,8 +2,8 @@ DROP VIEW IF EXISTS receive_queue_in_progress_response_received_tasks_view;
 
 CREATE OR REPLACE VIEW receive_queue_in_progress_response_received_tasks_view AS 
 WITH receive_request_queue_in_progress_response_received_tasks AS (
-    SELECT COUNT(*) AS count,
-    status as status
+    SELECT status as status,
+    COUNT(*) AS count
     FROM qbd_receive_request_queue
     WHERE
         workspace_id IN (SELECT id FROM prod_workspaces_view)
