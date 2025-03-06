@@ -2,7 +2,7 @@ DROP VIEW IF EXISTS _add_queue_fatal_in_progress_export_processed_tasks_view;
 
 CREATE OR REPLACE VIEW _add_queue_fatal_in_progress_export_processed_tasks_view AS
 WITH add_request_queue_fatal_in_progress_export_processed_tasks AS (
-    SELECT COUNT(*) AS add_queue_fatal_in_progress_export_processed_tasks_count
+    SELECT COUNT(*) AS count
     FROM qbd_add_request_queue
     WHERE
         workspace_id IN (SELECT id FROM prod_workspaces_view)
