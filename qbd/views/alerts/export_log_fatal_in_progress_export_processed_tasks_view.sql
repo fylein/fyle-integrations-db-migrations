@@ -2,8 +2,8 @@ DROP VIEW if exists export_log_fatal_in_progress_export_processed_tasks_view;
 
 CREATE OR REPLACE VIEW export_log_fatal_in_progress_export_processed_tasks_view AS
 WITH export_log_fatal_in_progress_export_processed_tasks AS (
-    SELECT COUNT(*) AS count,
-    status as status
+    SELECT status as status,
+    COUNT(*) AS count
     FROM export_logs
     WHERE
         workspace_id IN (SELECT id FROM prod_workspaces_view)
