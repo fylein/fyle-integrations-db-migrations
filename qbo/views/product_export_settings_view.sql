@@ -7,7 +7,6 @@ SELECT
     -- Workspace General Settings
     wgs.reimbursable_expenses_object,
     wgs.corporate_credit_card_expenses_object,
-    wgs.is_simplify_report_closure_enabled,
     wgs.name_in_journal_entry,
     -- Expense Group Settings
     egs.reimbursable_expense_group_fields,
