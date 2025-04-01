@@ -16,7 +16,7 @@ DO $$
             'django_session',
             'update_logs',
             'cost_types',
-            'expense_attributes_deletion_cache',
+            'expense_attributes_deletion_cache'
         );
 
         EXECUTE 'CREATE PUBLICATION events FOR TABLE ' || tables_list;

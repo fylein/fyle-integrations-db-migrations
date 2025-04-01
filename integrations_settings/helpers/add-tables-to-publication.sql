@@ -15,7 +15,7 @@ DO
             'django_q_schedule', 
             'django_q_task', 
             'django_session',
-            'update_logs',
+            'update_logs'
         );
 
         EXECUTE 'CREATE PUBLICATION events FOR TABLE ' || tables_list;

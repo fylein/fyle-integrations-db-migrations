@@ -15,7 +15,7 @@ DO $$
             'django_q_task', 
             'django_session',
             'update_logs',
-            'expense_attributes_deletion_cache',
+            'expense_attributes_deletion_cache'
 
         );
 
