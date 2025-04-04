@@ -77,6 +77,9 @@ DELETE
 	RAISE NOTICE 'Deleted % expenses', rcount;
 
 
+RAISE NOTICE E'\n\n\nIntegration Setting DB Queries to Set Error Count:';
+RAISE NOTICE E'rollback; begin; update integerations set error_count = % where org_id = \'%\' ;', failed_expense_groups, _fyle_org_id;
+
 RAISE NOTICE E'\n\n\nProd DB Queries to delete accounting export summaries:';
 RAISE NOTICE E'rollback; begin; update platform_schema.expenses_wot set accounting_export_summary = \'{}\' where org_id = \'%\' and id in (%); update platform_schema.reports_wot set accounting_export_summary = \'{}\' where org_id = \'%\' and id in (select report->>\'id\' from platform_schema.expenses_rov where org_id = \'%\' and id in (%));', _fyle_org_id, expense_ids, _fyle_org_id, _fyle_org_id, expense_ids;
 
