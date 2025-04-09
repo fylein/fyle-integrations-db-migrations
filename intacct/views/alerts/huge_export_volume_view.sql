@@ -1,6 +1,6 @@
-drop view if exists export_gt_200_enqueued_in_progress_view;
+drop view if exists huge_export_volume_view;
 
-create or replace view export_gt_200_enqueued_in_progress_view as
+create or replace view huge_export_volume_view as
 select 
     workspace_id,
     COUNT(*) as count

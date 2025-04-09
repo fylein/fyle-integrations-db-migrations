@@ -1,6 +1,6 @@
-drop view if exists last_export_gt_50_failed_view;
+drop view if exists huge_export_failing_orgs_view;
 
-create or replace view last_export_gt_50_failed_view as
+create or replace view huge_export_failing_orgs_view as
 select 
     workspace_id,
     failed_expense_groups_count as count
