@@ -14,6 +14,12 @@ BEGIN
     RAISE NOTICE 'Deleted % dependent_field_settings', rcount;
 
     DELETE
+    FROM dimension_details dd
+    WHERE dd.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % dimension_details', rcount;
+
+    DELETE
     FROM cost_types ct
     WHERE ct.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
