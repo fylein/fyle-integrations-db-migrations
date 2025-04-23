@@ -15,7 +15,7 @@ BEGIN
     RAISE NOTICE 'Deleted % dependent_field_settings', rcount;
 
     DELETE
-    FROM cost_types ct
+    FROM cost_categories ct
     WHERE ct.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % cost_types', rcount;
