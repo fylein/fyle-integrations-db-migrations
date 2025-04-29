@@ -50,18 +50,6 @@ BEGIN
   WHERE dc.workspace_id = _workspace_id;
   GET DIAGNOSTICS rcount = ROW_COUNT;
   RAISE NOTICE 'Deleted % direct_costs', rcount;
-  
-  DELETE
-  FROM expenses e
-  WHERE e.workspace_id = _workspace_id;
-  GET DIAGNOSTICS rcount = ROW_COUNT;
-  RAISE NOTICE 'Deleted % expenses', rcount;
-
-  DELETE
-  FROM expenses 
-  WHERE is_skipped=true and org_id in (SELECT org_id FROM workspaces WHERE id=_workspace_id);
-  GET DIAGNOSTICS rcount = ROW_COUNT;
-  RAISE NOTICE 'Deleted % skipped expenses', rcount;
 
   DELETE
   FROM accounting_exports_expenses aee
@@ -70,6 +58,12 @@ BEGIN
   );
   GET DIAGNOSTICS rcount = ROW_COUNT;
   RAISE NOTICE 'Deleted % accounting_exports_expenses', rcount;
+
+  DELETE
+  FROM expenses e
+  WHERE e.workspace_id = _workspace_id;
+  GET DIAGNOSTICS rcount = ROW_COUNT;
+  RAISE NOTICE 'Deleted % expenses', rcount;
 
   DELETE
   FROM accounting_exports ae
