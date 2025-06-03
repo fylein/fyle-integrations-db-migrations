@@ -6,7 +6,7 @@ DECLARE
 BEGIN
     UPDATE django_q_schedule 
     SET next_run = now() + INTERVAL '35 sec' 
-    WHERE args = _workspace_id and func = 'apps.mappings.imports.queues.chain_import_fields_to_fyle';
+    WHERE args = _workspace_id and func = 'apps.mappings.tasks.construct_tasks_and_chain_import_fields_to_fyle';
     
     GET DIAGNOSTICS rcount = ROW_COUNT;
 
