@@ -22,6 +22,14 @@ BEGIN
   RAISE NOTICE 'Deleted % export_logs_expenses', rcount;
 
   DELETE
+  FROM qbd_create_request_queue_export_logs qcrqel
+  WHERE qcrqel.qbdcreaterequestqueue_id IN (
+      SELECT qcrq.id FROM qbd_create_request_queue qcrq WHERE qcrq.workspace_id = _workspace_id
+  );
+  GET DIAGNOSTICS rcount = ROW_COUNT;
+  RAISE NOTICE 'Deleted % qbd_create_request_queue_export_logs', rcount;
+
+  DELETE
   FROM export_logs el
   WHERE el.workspace_id = _workspace_id;
   GET DIAGNOSTICS rcount = ROW_COUNT;
@@ -44,14 +52,6 @@ BEGIN
   WHERE il.workspace_id = _workspace_id;
   GET DIAGNOSTICS rcount = ROW_COUNT;
   RAISE NOTICE 'Deleted % import_logs', rcount;
-
-  DELETE
-  FROM qbd_create_request_queue_export_logs qcrqel
-  WHERE qcrqel.qbd_create_request_queue_id IN (
-      SELECT qcrq.id FROM qbd_create_request_queue qcrq WHERE qcrq.workspace_id = _workspace_id
-  );
-  GET DIAGNOSTICS rcount = ROW_COUNT;
-  RAISE NOTICE 'Deleted % qbd_create_request_queue_export_logs', rcount;
 
   DELETE
   FROM qbd_create_request_queue qcrq
@@ -245,7 +245,7 @@ BEGIN
   GET DIAGNOSTICS rcount = ROW_COUNT;
   RAISE NOTICE 'Deleted % users', rcount;
 
-  _org_id := (SELECT fyle_org_id FROM workspaces WHERE id = _workspace_id);
+  _org_id := (SELECT org_id FROM workspaces WHERE id = _workspace_id);
 
   DELETE
   FROM workspaces w
