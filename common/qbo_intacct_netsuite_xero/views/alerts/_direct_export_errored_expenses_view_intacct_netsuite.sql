@@ -61,8 +61,8 @@ not_synced_to_platform AS (
     FROM expenses e
     INNER JOIN configurations c on e.workspace_id = c.workspace_id
     WHERE
-        workspace_id IN (SELECT id FROM prod_workspace_ids)
-        AND accounting_export_summary->>'synced' = 'false'
+        e.workspace_id IN (SELECT id FROM prod_workspace_ids)
+        AND e.accounting_export_summary->>'synced' = 'false'
         AND c.skip_accounting_export_summary_post = 'false'
 )
 SELECT 
