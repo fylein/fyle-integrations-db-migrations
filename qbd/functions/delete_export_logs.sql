@@ -1,6 +1,6 @@
 DROP FUNCTION IF EXISTS delete_export_logs;
 
-CREATE OR REPLACE FUNCTION delete_export_logs(
+CREATE OR REPLACE FUNCTION delete_exported_export_logs(
     IN _workspace_id integer, 
     IN _delete_all boolean DEFAULT false, 
     IN _status text DEFAULT NULL,
