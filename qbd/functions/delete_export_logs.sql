@@ -1,4 +1,4 @@
-DROP FUNCTION IF EXISTS delete_export_logs;
+DROP FUNCTION IF EXISTS delete_exported_export_logs;
 
 CREATE OR REPLACE FUNCTION delete_exported_export_logs(
     IN _workspace_id integer, 
