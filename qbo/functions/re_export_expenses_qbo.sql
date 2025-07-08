@@ -102,7 +102,7 @@ DELETE
 
 UPDATE 
 	expense_groups set exported_at = null, response_logs = null
-	WHERE id in (SELECT unnest(local_expense_group_ids));
+	WHERE id in (SELECT unnest(local_expense_group_ids)) and workspace_id = _workspace_id and exported_at is not null;
 	GET DIAGNOSTICS rcount = ROW_COUNT;
 	RAISE NOTICE 'Updating % expense_groups and resetting exported_at, response_logs', rcount;
 
