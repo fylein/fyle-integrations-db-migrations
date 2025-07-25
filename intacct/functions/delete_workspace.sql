@@ -20,6 +20,12 @@ BEGIN
     RAISE NOTICE 'Deleted % dimension_details', rcount;
 
     DELETE
+    FROM cost_codes cc
+    WHERE cc.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % cost_codes', rcount;
+
+    DELETE
     FROM cost_types ct
     WHERE ct.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
@@ -30,20 +36,20 @@ BEGIN
     WHERE lem.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % location_entity_mappings', rcount;
-    
-    DELETE 
+
+    DELETE
     FROM expense_fields ef
     WHERE ef.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % expense_fields', rcount;
 
-    DELETE 
+    DELETE
     FROM errors e
     WHERE e.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % errors', rcount;
 
-    DELETE 
+    DELETE
     FROM import_logs il
     WHERE il.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
@@ -180,7 +186,7 @@ BEGIN
     RAISE NOTICE 'Deleted % expenses', rcount;
 
     DELETE
-    FROM expenses 
+    FROM expenses
     WHERE is_skipped=true and org_id in (SELECT fyle_org_id FROM workspaces WHERE id=_workspace_id);
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % skipped expenses', rcount;
