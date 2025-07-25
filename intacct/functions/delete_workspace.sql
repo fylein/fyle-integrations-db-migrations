@@ -21,7 +21,7 @@ BEGIN
 
     DELETE
     FROM cost_codes cc
-    WHERE ct.workspace_id = _workspace_id;
+    WHERE cc.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
     RAISE NOTICE 'Deleted % cost_codes', rcount;
 
