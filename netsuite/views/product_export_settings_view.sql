@@ -7,7 +7,6 @@ SELECT
     -- Workspace General Settings
     c.reimbursable_expenses_object,
     c.corporate_credit_card_expenses_object,
-    c.is_simplify_report_closure_enabled,
     c.name_in_journal_entry,
     c.employee_field_mapping,
     c.auto_map_employees,
