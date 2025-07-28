@@ -53,6 +53,8 @@ SET mapping_error_expense_group_ids = COALESCE((
 WHERE workspace_id = _workspace_id 
 AND mapping_error_expense_group_ids && local_expense_group_ids;
 
+GET DIAGNOSTICS rcount = ROW_COUNT;
+RAISE NOTICE 'Updated % errors with mapping_error_expense_group_ids removed', rcount;
 
 DELETE FROM errors 
 WHERE workspace_id = _workspace_id 
