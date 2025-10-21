@@ -4,8 +4,18 @@ CREATE OR REPLACE FUNCTION delete_workspace(IN _workspace_id integer) RETURNS vo
 DECLARE
     rcount integer;
     _org_id varchar(255);
+    _fyle_org_id text;
+    expense_ids text;
 BEGIN
     RAISE NOTICE 'Deleting data from workspace %', _workspace_id;
+
+    _fyle_org_id := (select fyle_org_id from workspaces where id = _workspace_id);
+
+    expense_ids := (
+        select string_agg(format('%L', e.expense_id), ', ') 
+        from expenses e
+        where e.workspace_id = _workspace_id
+    );
 
     DELETE
     FROM dependent_field_settings dfs
@@ -348,6 +358,8 @@ BEGIN
     RAISE NOTICE E'\n\n\n\n\n\n\n\n\nSwitch to prod db and run the below queries to delete dependent fields';
     RAISE NOTICE E'rollback;begin; delete from platform_schema.dependent_expense_field_mappings where expense_field_id in (select id from platform_schema.expense_fields where org_id =''%'' and type=''DEPENDENT_SELECT''); delete from platform_schema.expense_fields where org_id = ''%'' and type = ''DEPENDENT_SELECT'';\n\n\n\n\n\n\n\n\n\n\n', _org_id, _org_id;
 
+    RAISE NOTICE E'\n\n\nProd DB Queries to delete accounting export summaries:';
+    RAISE NOTICE E'rollback; begin; update platform_schema.expenses_wot set accounting_export_summary = \'{}\' where org_id = \'%\' and id in (%); update platform_schema.reports_wot set accounting_export_summary = \'{}\' where org_id = \'%\' and id in (select report->>\'id\' from platform_schema.expenses_rov where org_id = \'%\' and id in (%));', _fyle_org_id, expense_ids, _fyle_org_id, _fyle_org_id, expense_ids;
 
 RETURN;
 END

@@ -1,6 +1,6 @@
-DROP FUNCTION if exists re_export_expenses_qbo;
+DROP FUNCTION if exists re_export_expenses_intacct;
 
-CREATE OR REPLACE FUNCTION re_export_expenses_qbo(IN _workspace_id integer, _expense_group_ids integer[], trigger_export boolean DEFAULT false) RETURNS void AS $$
+CREATE OR REPLACE FUNCTION re_export_expenses_intacct(IN _workspace_id integer, _expense_group_ids integer[], trigger_export boolean DEFAULT false) RETURNS void AS $$
 
 DECLARE
   	rcount integer;
@@ -51,19 +51,19 @@ DELETE
 	RAISE NOTICE 'Deleted % bills', rcount;
 
 DELETE
-	FROM credit_card_purchase_lineitems ccpl
-	WHERE ccpl.credit_card_purchase_id IN (
-		SELECT ccp.id FROM credit_card_purchases ccp WHERE ccp.expense_group_id IN (
+	FROM charge_card_transaction_lineitems ccpl
+	WHERE ccpl.charge_card_transaction_id IN (
+		SELECT ccp.id FROM charge_card_transactions ccp WHERE ccp.expense_group_id IN (
 			SELECT unnest(local_expense_group_ids)
 		) 
 	);
 	GET DIAGNOSTICS rcount = ROW_COUNT;
-	RAISE NOTICE 'Deleted % credit_card_purchase_lineitems', rcount;
+	RAISE NOTICE 'Deleted % charge_card_transaction_lineitems', rcount;
 
 DELETE
-	FROM credit_card_purchases WHERE expense_group_id IN (SELECT unnest(local_expense_group_ids));
+	FROM charge_card_transactions WHERE expense_group_id IN (SELECT unnest(local_expense_group_ids));
 	GET DIAGNOSTICS rcount = ROW_COUNT;
-	RAISE NOTICE 'Deleted % credit_card_purchases', rcount;
+	RAISE NOTICE 'Deleted % charge_card_transactions', rcount;
 
 DELETE
 	FROM journal_entry_lineitems jel
@@ -81,34 +81,19 @@ DELETE
 	RAISE NOTICE 'Deleted % journal_entries', rcount;
 
 DELETE
-	FROM qbo_expense_lineitems qel
-	WHERE qel.qbo_expense_id IN (
-		SELECT qe.id FROM qbo_expenses qe WHERE qe.expense_group_id IN (
+	FROM expense_report_lineitems cl
+	WHERE cl.expense_report_id IN (
+		SELECT cq.id FROM expense_reports cq WHERE cq.expense_group_id IN (
 			SELECT unnest(local_expense_group_ids)
 		) 
 	);
 	GET DIAGNOSTICS rcount = ROW_COUNT;
-	RAISE NOTICE 'Deleted % qbo_expense_lineitems', rcount;
+	RAISE NOTICE 'Deleted % expense_report_lineitems', rcount;
 
 DELETE
-	FROM qbo_expenses WHERE expense_group_id IN (SELECT unnest(local_expense_group_ids));
+	FROM expense_reports WHERE expense_group_id IN (SELECT unnest(local_expense_group_ids));
 	GET DIAGNOSTICS rcount = ROW_COUNT;
-	RAISE NOTICE 'Deleted % qbo_expenses', rcount;
-
-DELETE
-	FROM cheque_lineitems cl
-	WHERE cl.cheque_id IN (
-		SELECT cq.id FROM cheques cq WHERE cq.expense_group_id IN (
-			SELECT unnest(local_expense_group_ids)
-		) 
-	);
-	GET DIAGNOSTICS rcount = ROW_COUNT;
-	RAISE NOTICE 'Deleted % cheque_lineitems', rcount;
-
-DELETE
-	FROM cheques WHERE expense_group_id IN (SELECT unnest(local_expense_group_ids));
-	GET DIAGNOSTICS rcount = ROW_COUNT;
-	RAISE NOTICE 'Deleted % cheques', rcount;
+	RAISE NOTICE 'Deleted % expense_reports', rcount;
 
 UPDATE 
 	expense_groups set exported_at = null, response_logs = null
