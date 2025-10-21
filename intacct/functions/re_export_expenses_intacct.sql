@@ -1,6 +1,6 @@
-DROP FUNCTION if exists re_export_expenses_xero;
+DROP FUNCTION if exists re_export_expenses_intacct;
 
-CREATE OR REPLACE FUNCTION re_export_expenses_xero(IN _workspace_id integer, _expense_group_ids integer[], trigger_export boolean DEFAULT false) RETURNS void AS $$
+CREATE OR REPLACE FUNCTION re_export_expenses_intacct(IN _workspace_id integer, _expense_group_ids integer[], trigger_export boolean DEFAULT false) RETURNS void AS $$
 
 DECLARE
   	rcount integer;
@@ -41,30 +41,61 @@ DELETE
 	RAISE NOTICE 'Deleted % bills', rcount;
 
 DELETE
-	FROM bank_transaction_lineitems btl
-	WHERE btl.bank_transaction_id IN (
-		SELECT bt.id FROM bank_transactions bt WHERE bt.expense_group_id IN (
+	FROM charge_card_transaction_lineitems ccpl
+	WHERE ccpl.charge_card_transaction_id IN (
+		SELECT ccp.id FROM charge_card_transactions ccp WHERE ccp.expense_group_id IN (
 			SELECT unnest(local_expense_group_ids)
 		) 
 	);
 	GET DIAGNOSTICS rcount = ROW_COUNT;
-	RAISE NOTICE 'Deleted % bank_transaction_lineitems', rcount;
+	RAISE NOTICE 'Deleted % charge_card_transaction_lineitems', rcount;
 
 DELETE
-	FROM bank_transactions WHERE expense_group_id IN (SELECT unnest(local_expense_group_ids));
+	FROM charge_card_transactions WHERE expense_group_id IN (SELECT unnest(local_expense_group_ids));
 	GET DIAGNOSTICS rcount = ROW_COUNT;
-	RAISE NOTICE 'Deleted % bank_transactions', rcount;
+	RAISE NOTICE 'Deleted % charge_card_transactions', rcount;
 
 DELETE
-	FROM payments WHERE expense_group_id IN (SELECT unnest(local_expense_group_ids));
+	FROM journal_entry_lineitems jel
+	WHERE jel.journal_entry_id IN (
+		SELECT je.id FROM journal_entries je WHERE je.expense_group_id IN (
+			SELECT unnest(local_expense_group_ids)
+		) 
+	);
 	GET DIAGNOSTICS rcount = ROW_COUNT;
-	RAISE NOTICE 'Deleted % payments', rcount;
+	RAISE NOTICE 'Deleted % journal_entry_lineitems', rcount;
+
+DELETE
+	FROM journal_entries WHERE expense_group_id IN (SELECT unnest(local_expense_group_ids));
+	GET DIAGNOSTICS rcount = ROW_COUNT;
+	RAISE NOTICE 'Deleted % journal_entries', rcount;
+
+DELETE
+	FROM expense_report_lineitems cl
+	WHERE cl.expense_report_id IN (
+		SELECT cq.id FROM expense_reports cq WHERE cq.expense_group_id IN (
+			SELECT unnest(local_expense_group_ids)
+		) 
+	);
+	GET DIAGNOSTICS rcount = ROW_COUNT;
+	RAISE NOTICE 'Deleted % expense_report_lineitems', rcount;
+
+DELETE
+	FROM expense_reports WHERE expense_group_id IN (SELECT unnest(local_expense_group_ids));
+	GET DIAGNOSTICS rcount = ROW_COUNT;
+	RAISE NOTICE 'Deleted % expense_reports', rcount;
 
 UPDATE 
 	expense_groups set exported_at = null, response_logs = null
-	WHERE id in (SELECT unnest(local_expense_group_ids));
+	WHERE id in (SELECT unnest(local_expense_group_ids)) and workspace_id = _workspace_id and exported_at is not null;
 	GET DIAGNOSTICS rcount = ROW_COUNT;
 	RAISE NOTICE 'Updating % expense_groups and resetting exported_at, response_logs', rcount;
+
+UPDATE
+	expenses set accounting_export_summary = '{}'
+	where id in (SELECT unnest(temp_expenses));
+	GET DIAGNOSTICS rcount = ROW_COUNT;
+	RAISE NOTICE 'Updating % expenses and resetting accounting_export_summary', rcount;
 
 IF trigger_export THEN
     UPDATE django_q_schedule 

@@ -1,6 +1,6 @@
 DROP FUNCTION if exists re_export_expenses_qbo;
 
-CREATE OR REPLACE FUNCTION re_export_expenses_qbo(IN _workspace_id integer, _expense_group_ids integer[]) RETURNS void AS $$
+CREATE OR REPLACE FUNCTION re_export_expenses_qbo(IN _workspace_id integer, _expense_group_ids integer[], trigger_export boolean DEFAULT false) RETURNS void AS $$
 
 DECLARE
   	rcount integer;
@@ -106,17 +106,19 @@ UPDATE
 	GET DIAGNOSTICS rcount = ROW_COUNT;
 	RAISE NOTICE 'Updating % expense_groups and resetting exported_at, response_logs', rcount;
 
-UPDATE django_q_schedule 
-    SET next_run = now() + INTERVAL '35 sec' 
-    WHERE args = _workspace_id::text and func = 'apps.workspaces.tasks.run_sync_schedule';
-    
-    GET DIAGNOSTICS rcount = ROW_COUNT;
+IF trigger_export THEN
+    UPDATE django_q_schedule 
+        SET next_run = now() + INTERVAL '35 sec' 
+        WHERE args = _workspace_id::text and func = 'apps.workspaces.tasks.run_sync_schedule';
+        
+        GET DIAGNOSTICS rcount = ROW_COUNT;
 
-    IF rcount > 0 THEN
-        RAISE NOTICE 'Updated % schedule', rcount;
-    ELSE
-        RAISE NOTICE 'Schedule not updated since it doesnt exist';
-    END IF;
+        IF rcount > 0 THEN
+            RAISE NOTICE 'Updated % schedule', rcount;
+        ELSE
+            RAISE NOTICE 'Schedule not updated since it doesnt exist';
+        END IF;
+END IF;
 
 RETURN;
 END
