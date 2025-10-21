@@ -10,6 +10,8 @@ DECLARE
     rcount INTEGER;
     temp_expenses INTEGER[];
     local_export_log_ids INTEGER[];
+    _fyle_org_id text;
+    expense_ids text;
 BEGIN
     RAISE NOTICE 'Deleting failed expenses from workspace % ', _workspace_id; 
 
@@ -33,6 +35,15 @@ BEGIN
     SELECT array_agg(expense_id) INTO temp_expenses 
     FROM export_logs_expenses 
     WHERE exportlog_id = ANY(local_export_log_ids);
+
+    _fyle_org_id := (select org_id from workspaces where id = _workspace_id);
+
+    expense_ids := (
+        select string_agg(format('%L', expense_id), ', ') 
+        from expenses
+        where workspace_id = _workspace_id
+        and id in (SELECT unnest(temp_expenses))
+    );
 
     -- Delete from export_logs_expenses first to avoid foreign key constraint violations
     DELETE FROM export_logs_expenses 
@@ -69,6 +80,9 @@ BEGIN
     -- Update the export summary to reflect the change
     RAISE NOTICE 'IF FAILED EXPORT LOGS COUNT IS 0, THEN RUN THIS';
     RAISE NOTICE 'UPDATE export_summary set failed_export_log_count = 0 WHERE workspace_id = %;', _workspace_id;
+
+    RAISE NOTICE E'\n\n\nProd DB Queries to delete accounting export summaries:';
+    RAISE NOTICE E'rollback; begin; update platform_schema.expenses_wot set accounting_export_summary = \'{}\' where org_id = \'%\' and id in (%); update platform_schema.reports_wot set accounting_export_summary = \'{}\' where org_id = \'%\' and id in (select report->>\'id\' from platform_schema.expenses_rov where org_id = \'%\' and id in (%));', _fyle_org_id, expense_ids, _fyle_org_id, _fyle_org_id, expense_ids;
 
     RETURN;
 END
