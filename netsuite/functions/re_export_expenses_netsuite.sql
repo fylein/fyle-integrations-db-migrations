@@ -91,6 +91,12 @@ UPDATE
 	GET DIAGNOSTICS rcount = ROW_COUNT;
 	RAISE NOTICE 'Updating % expense_groups and resetting exported_at, response_logs', rcount;
 
+UPDATE
+	expenses set accounting_export_summary = '{}'
+	where id in (SELECT unnest(temp_expenses));
+	GET DIAGNOSTICS rcount = ROW_COUNT;
+	RAISE NOTICE 'Updating % expenses and resetting accounting_export_summary', rcount;
+
 IF trigger_export THEN
     UPDATE django_q_schedule 
         SET next_run = now() + INTERVAL '35 sec' 
