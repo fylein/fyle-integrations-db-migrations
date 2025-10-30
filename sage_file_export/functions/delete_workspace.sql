@@ -164,6 +164,18 @@ BEGIN
   RAISE NOTICE 'Deleted % django_q_schedule', rcount;
 
   DELETE
+  FROM feature_configs fc
+  WHERE fc.workspace_id = _workspace_id;
+  GET DIAGNOSTICS rcount = ROW_COUNT;
+  RAISE NOTICE 'Deleted % feature_configs', rcount;
+
+  DELETE
+  FROM fyle_sync_timestamps fst
+  WHERE fst.workspace_id = _workspace_id;
+  GET DIAGNOSTICS rcount = ROW_COUNT;
+  RAISE NOTICE 'Deleted % fyle_sync_timestamps', rcount;
+
+  DELETE
   FROM auth_tokens aut
   WHERE aut.user_id IN (
       SELECT u.id FROM users u WHERE u.id IN (

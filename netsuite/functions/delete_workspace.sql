@@ -253,6 +253,18 @@ BEGIN
     RAISE NOTICE 'Deleted % errors', rcount;
 
     DELETE
+    FROM feature_configs fc
+    WHERE fc.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % feature_configs', rcount;
+
+    DELETE
+    FROM fyle_sync_timestamps fst
+    WHERE fst.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % fyle_sync_timestamps', rcount;
+
+    DELETE
     FROM django_q_schedule dqs
     WHERE dqs.args = _workspace_id::varchar(255);
     GET DIAGNOSTICS rcount = ROW_COUNT;
