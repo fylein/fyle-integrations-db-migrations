@@ -30,6 +30,12 @@ BEGIN
     RAISE NOTICE 'Deleted % dimension_details', rcount;
 
     DELETE
+    FROM intacct_sync_timestamps ist
+    WHERE ist.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % intacct_sync_timestamps', rcount;
+
+    DELETE
     FROM cost_codes cc
     WHERE cc.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
