@@ -290,6 +290,12 @@ BEGIN
   RAISE NOTICE 'Deleted % feature_configs', rcount;
 
   DELETE
+  FROM qbo_attributes_count qac
+  WHERE qac.workspace_id = _workspace_id;
+  GET DIAGNOSTICS rcount = ROW_COUNT;
+  RAISE NOTICE 'Deleted % qbo_attributes_count', rcount;
+
+  DELETE
   FROM fyle_sync_timestamps fst
   WHERE fst.workspace_id = _workspace_id;
   GET DIAGNOSTICS rcount = ROW_COUNT;

@@ -324,6 +324,12 @@ BEGIN
     RAISE NOTICE 'Deleted % fyle_sync_timestamps', rcount;
 
     DELETE
+    FROM sage_intacct_attributes_count sicac
+    WHERE sicac.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % sage_intacct_attributes_count', rcount;
+
+    DELETE
     FROM django_q_schedule dqs
     WHERE dqs.args = _workspace_id::varchar(255);
     GET DIAGNOSTICS rcount = ROW_COUNT;

@@ -265,6 +265,12 @@ BEGIN
     RAISE NOTICE 'Deleted % fyle_sync_timestamps', rcount;
 
     DELETE
+    FROM netsuite_attributes_count nac
+    WHERE nac.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % netsuite_attributes_count', rcount;
+
+    DELETE
     FROM django_q_schedule dqs
     WHERE dqs.args = _workspace_id::varchar(255);
     GET DIAGNOSTICS rcount = ROW_COUNT;

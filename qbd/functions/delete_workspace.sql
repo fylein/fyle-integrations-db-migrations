@@ -18,12 +18,6 @@ BEGIN
   );
 
   DELETE
-  FROM update_logs ul
-  WHERE ul.workspace_id = _workspace_id;
-  GET DIAGNOSTICS rcount = ROW_COUNT;
-  RAISE NOTICE 'Deleted % update_logs', rcount;
-
-  DELETE
   FROM export_logs_expenses ele
   WHERE ele.exportlog_id IN (
       SELECT el.id FROM export_logs el WHERE el.workspace_id = _workspace_id
