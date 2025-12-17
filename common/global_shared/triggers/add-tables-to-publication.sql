@@ -48,8 +48,3 @@ BEGIN
     END LOOP;
 END;
 $$ LANGUAGE plpgsql;
-
-CREATE EVENT TRIGGER on_table_created
-ON ddl_command_end                        
-WHEN TAG IN ('CREATE TABLE')
-EXECUTE FUNCTION public.add_tables_to_publication();
