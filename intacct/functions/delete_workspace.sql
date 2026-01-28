@@ -24,6 +24,12 @@ BEGIN
     RAISE NOTICE 'Deleted % dependent_field_settings', rcount;
 
     DELETE
+    FROM system_comments sc
+    WHERE sc.workspace_id = _workspace_id;
+    GET DIAGNOSTICS rcount = ROW_COUNT;
+    RAISE NOTICE 'Deleted % system_comments', rcount;
+
+    DELETE
     FROM dimension_details dd
     WHERE dd.workspace_id = _workspace_id;
     GET DIAGNOSTICS rcount = ROW_COUNT;
