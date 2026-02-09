@@ -47,4 +47,4 @@ BEGIN
         END;
     END LOOP;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
