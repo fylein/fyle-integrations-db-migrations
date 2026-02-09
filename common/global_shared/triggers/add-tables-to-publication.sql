@@ -47,4 +47,4 @@ BEGIN
         END;
     END LOOP;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$ LANGUAGE plpgsql;
