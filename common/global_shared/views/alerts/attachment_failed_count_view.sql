@@ -13,5 +13,6 @@ where
     from 
       prod_workspaces_view
   ) 
+  and status = 'COMPLETE'
   and updated_at > now() - interval '3 days' 
   and is_attachment_upload_failed = 'true';
