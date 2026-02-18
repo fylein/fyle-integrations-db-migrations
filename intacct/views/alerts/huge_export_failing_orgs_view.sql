@@ -6,5 +6,5 @@ select
     failed_expense_groups_count as count
 from last_export_details 
 where 
-    failed_expense_groups_count > 50
+    failed_expense_groups_count > 200
     and workspace_id in (select id from prod_workspaces_view);
